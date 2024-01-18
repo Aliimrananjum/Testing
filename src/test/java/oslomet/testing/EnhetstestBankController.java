@@ -9,6 +9,7 @@ import oslomet.testing.API.BankController;
 import oslomet.testing.DAL.BankRepository;
 import oslomet.testing.Models.Konto;
 import oslomet.testing.Models.Kunde;
+import oslomet.testing.Models.Transaksjon;
 import oslomet.testing.Sikkerhet.Sikkerhet;
 
 import java.util.ArrayList;
@@ -34,6 +35,34 @@ public class EnhetstestBankController {
     // denne skal Mock'es
     private Sikkerhet sjekk;
 
+
+    @Test
+    public void hentTransaksjoner_loggetInn(){
+
+        List<Transaksjon> Transing = new ArrayList<>();
+        Transaksjon enTransaksjon = new Transaksjon(0001, "01010110523" ,500.0, "2022-01-01", "Test" , "Ja", "12345678888");
+        Transing.add(enTransaksjon);
+        Konto enKonto = new Konto("105010123456", "01010110523",
+                720, "Lønnskonto", "NOK", Transing);
+
+        when(sjekk.loggetInn()).thenReturn("01010110523");
+
+        when(repository.hentTransaksjoner(anyString(),anyString(),anyString())).thenReturn(enKonto);
+
+        Konto resultat = bankController.hentTransaksjoner("01010110523","2022-01-01","2022-01-01");
+
+        assertEquals(Transing, resultat.getTransaksjoner());
+    }
+
+    @Test
+    public void hentTransaksjoner_IkkeloggetInn(){
+        when(sjekk.loggetInn()).thenReturn(null);
+
+        Konto resultat = bankController.hentTransaksjoner("01010110523","2022-01-01","2022-01-01");
+
+        assertNull(resultat);
+
+    }
     @Test
     public void hentKundeInfo_loggetInn() {
 
