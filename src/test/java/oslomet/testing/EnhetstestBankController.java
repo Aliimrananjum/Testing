@@ -4,6 +4,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import oslomet.testing.API.BankController;
 import oslomet.testing.DAL.BankRepository;
@@ -17,8 +18,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -36,6 +36,54 @@ public class EnhetstestBankController {
     // denne skal Mock'es
     private Sikkerhet sjekk;
 
+    @Test
+    public void endre_loggetInn(){
+        Kunde testKunde = new Kunde();
+        when(sjekk.loggetInn()).thenReturn("01010110523");
+        when(repository.endreKundeInfo(any(Kunde.class))).thenReturn("OK");
+
+        String resultat = bankController.endre(testKunde);
+        assertEquals("OK",resultat);
+    }
+
+    @Test
+    public void endre_ikkeLoggetInn(){
+        Kunde testKunde = new Kunde();
+        when(sjekk.loggetInn()).thenReturn(null);
+
+        String resultat = bankController.endre(testKunde);
+        assertNull(resultat);
+    }
+
+    @Test
+    public void utforBetaling_ikkeLoggetInn(){
+        when(sjekk.loggetInn()).thenReturn(null);
+        List<Transaksjon> resultat = bankController.hentBetalinger();
+        assertNull(resultat);
+    }
+
+    @Test //problemer
+    public void utforBetaling_loggetInn(){
+        List<Transaksjon> Transing = new ArrayList<>();
+        Transaksjon enTransaksjon = new Transaksjon(0001, "01010110523" ,500.0, "2022-01-01", "Test" , "Ja", "12345678888");
+        Transing.add(enTransaksjon);
+
+        when(sjekk.loggetInn()).thenReturn("01010110523");
+
+        when(repository.utforBetaling(anyInt())).thenReturn("OK");
+
+        when(repository.hentBetalinger(anyString())).thenReturn(Transing);
+
+        List<Transaksjon> resultat = bankController.hentBetalinger();
+
+        assertEquals(Transing, resultat);
+    }
+    @Test
+    public void hentBetalinger_ikkeLoggetInn(){
+        when(sjekk.loggetInn()).thenReturn(null);
+        List<Transaksjon> resultat = bankController.hentBetalinger();
+        assertNull(resultat);
+    }
 
     @Test
     public void hentBetalinger_loggetInn(){
@@ -43,8 +91,9 @@ public class EnhetstestBankController {
         Transaksjon enTransaksjon = new Transaksjon(0001, "01010110523" ,500.0, "2022-01-01", "Test" , "Ja", "12345678888");
         Transing.add(enTransaksjon);
         when(sjekk.loggetInn()).thenReturn("01010110523");
-
-
+        when(repository.hentBetalinger(anyString())).thenReturn(Transing);
+        List<Transaksjon> resultat = bankController.hentBetalinger();
+        assertEquals(Transing, resultat);
     }
     @Test
     public void registrerBetaling_loggetInn(){
@@ -197,5 +246,7 @@ public class EnhetstestBankController {
         // assert
         assertNull(resultat);
     }
+
+
 }
 
