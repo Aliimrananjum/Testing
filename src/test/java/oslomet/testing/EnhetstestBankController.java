@@ -58,7 +58,7 @@ public class EnhetstestBankController {
     @Test
     public void utforBetaling_ikkeLoggetInn(){
         when(sjekk.loggetInn()).thenReturn(null);
-        List<Transaksjon> resultat = bankController.hentBetalinger();
+        List<Transaksjon> resultat = bankController.utforBetaling(1);
         assertNull(resultat);
     }
 
@@ -74,7 +74,7 @@ public class EnhetstestBankController {
 
         when(repository.hentBetalinger(anyString())).thenReturn(Transing);
 
-        List<Transaksjon> resultat = bankController.hentBetalinger();
+        List<Transaksjon> resultat = bankController.utforBetaling(1);
 
         assertEquals(Transing, resultat);
     }
